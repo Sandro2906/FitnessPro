@@ -55,10 +55,14 @@ export async function PUT(req: Request) {
         const session = JSON.parse(authCookie.value);
         const updates = await req.json();
 
-        // Ignore attempt to update protected fields
+        // Ignore attempt to update protected or calculated fields
         delete updates.username;
         delete updates.email;
         delete updates.id;
+        delete updates.age; // calculated, not in DB
+        delete updates.avatarUrl; // handled by separate route
+        delete updates.createdAt;
+        delete updates.dateOfBirth; // read-only on profile
 
         if (updates.password) {
             const crypto = await import('crypto');

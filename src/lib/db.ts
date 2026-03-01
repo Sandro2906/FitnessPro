@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, User } from '@prisma/client'
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient }
 
@@ -11,7 +11,7 @@ export const prisma =
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
 
 // Utility functions for easy access
-export async function getUserByUsername(username: string) {
+export async function getUserByUsername(username: string): Promise<User | null> {
     return await prisma.user.findFirst({
         where: {
             OR: [
@@ -22,7 +22,7 @@ export async function getUserByUsername(username: string) {
     });
 }
 
-export async function getUserByEmail(email: string) {
+export async function getUserByEmail(email: string): Promise<User | null> {
     return await prisma.user.findUnique({
         where: { email: email }
     });
