@@ -14,7 +14,7 @@ model User {
   username     String?  @unique
   password     String
   name         String?
-  age          Int?
+  dateOfBirth  DateTime?
   phone        String?
   role         String   @default("user")
   profileImage String?

@@ -8,12 +8,12 @@ export async function POST(req: Request) {
         const username = (body.username || '').trim();
         const email = (body.email || '').trim().toLowerCase();
         const password = body.password || '';
-        const age = body.age;
+        const dateOfBirth = body.dateOfBirth;
         const phone = (body.phone || '').trim();
 
         // Validacije
-        if (!username || !email || !password || !age) {
-            return NextResponse.json({ error: 'Username, email, password, and age are required' }, { status: 400 });
+        if (!username || !email || !password || !dateOfBirth) {
+            return NextResponse.json({ error: 'Username, email, password, and date of birth are required' }, { status: 400 });
         }
 
         if (await getUserByUsername(username)) {
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
             email,
             username,
             password: hashedPassword,
-            age: Number(age),
+            dateOfBirth: new Date(dateOfBirth),
             phone: phone || '',
         };
 

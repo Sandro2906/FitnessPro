@@ -10,7 +10,7 @@ export default function Register() {
         username: '',
         email: '',
         password: '',
-        age: '',
+        dateOfBirth: '',
         phone: '',
     });
     const [error, setError] = useState('');
@@ -22,7 +22,7 @@ export default function Register() {
         setError('');
 
         // Client-side validation
-        if (!formData.username || !formData.email || !formData.password || !formData.age) {
+        if (!formData.username || !formData.email || !formData.password || !formData.dateOfBirth) {
             setError('Sva polja osim broja telefona su obavezna.');
             setLoading(false);
             return;
@@ -72,8 +72,8 @@ export default function Register() {
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-1">Godine <span className="text-brand-red">*</span></label>
-                            <input type="number" required min="1" value={formData.age} onChange={(e) => setFormData({ ...formData, age: e.target.value })} className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-brand-red focus:ring-1 focus:ring-brand-red" placeholder="Unesite godine" />
+                            <label className="block text-sm font-medium text-gray-300 mb-1">Datum Rođenja <span className="text-brand-red">*</span></label>
+                            <input type="date" required value={formData.dateOfBirth} onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })} className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-brand-red focus:ring-1 focus:ring-brand-red" />
                         </div>
 
                         <div>

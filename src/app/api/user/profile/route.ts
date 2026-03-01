@@ -19,8 +19,22 @@ export async function GET(req: Request) {
             return res;
         }
 
+        // Calculate age
+        let calculatedAge = 0;
+        if (user.dateOfBirth) {
+            const dob = new Date(user.dateOfBirth);
+            const today = new Date();
+            let age = today.getFullYear() - dob.getFullYear();
+            const m = today.getMonth() - dob.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+                age--;
+            }
+            calculatedAge = age;
+        }
+
         const { password, ...safeUser } = user;
-        return NextResponse.json(safeUser);
+        // Inject calculated age for display
+        return NextResponse.json({ ...safeUser, age: calculatedAge });
     } catch (error) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -70,16 +84,6 @@ export async function DELETE(req: Request) {
 
         if (!user) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 });
-        }
-
-        // Delete old avatar if exists
-        if (user.avatarUrl) {
-            const fs = await import('fs');
-            const path = await import('path');
-            const oldAvatarPath = path.join(process.cwd(), 'public', user.avatarUrl as string);
-            if (fs.existsSync(oldAvatarPath)) {
-                fs.unlinkSync(oldAvatarPath);
-            }
         }
 
         await prisma.user.delete({ where: { id: session.id } });

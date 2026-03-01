@@ -181,8 +181,8 @@ export default function Profile() {
 
                         {/* Editable Fields */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-1">Godine</label>
-                            <input type="number" required min="1" value={userData.age} onChange={(e) => setUserData({ ...userData, age: e.target.value })} className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-brand-red focus:ring-1 focus:ring-brand-red" />
+                            <label className="block text-sm font-medium text-gray-500 mb-1">Godine (računa se iz datuma rođenja)</label>
+                            <input type="number" readOnly value={userData.age || ''} className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700/50 rounded-lg text-gray-500 cursor-not-allowed" />
                         </div>
 
                         <div>
