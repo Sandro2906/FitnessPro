@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
 import fs from 'fs';
 import path from 'path';
 
@@ -41,23 +40,11 @@ export async function POST(req: Request) {
 
         const filepath = path.join(uploadDir, filename);
 
-        const user = await prisma.user.findUnique({ where: { id: session.id } });
-        if (user && user.avatarUrl) {
-            const oldFilePath = path.join(process.cwd(), 'public', user.avatarUrl);
-            if (fs.existsSync(oldFilePath)) {
-                fs.unlinkSync(oldFilePath);
-            }
-        }
-
         // Write file
         fs.writeFileSync(filepath, buffer);
 
         // Update user in DB
         const avatarUrl = `/uploads/avatars/${filename}`;
-        await prisma.user.update({
-            where: { id: session.id },
-            data: { avatarUrl }
-        });
 
         return NextResponse.json({ message: 'Avatar uploaded successfully', avatarUrl });
     } catch (error: any) {

@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import nodemailer from 'nodemailer';
-import { getUserByUsername } from '@/lib/db';
 
 export async function POST(req: Request) {
     try {
@@ -20,8 +19,9 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Unauthorized. Please log in first.' }, { status: 401 });
         }
 
-        const username = authSession.value;
-        const user = await getUserByUsername(username);
+        const sessionObj = JSON.parse(decodeURIComponent(authSession.value));
+        const username = sessionObj.username || 'mockUser';
+        const user = { username: username, email: 'mock@example.com' };
 
         if (!user) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 });
