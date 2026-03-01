@@ -2,8 +2,8 @@ import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
 import { cookies } from 'next/headers';
 
-export default async function ProgramDashboard({ params }: { params: { id: string } }) {
-    const { id } = params;
+export default async function ProgramDashboard({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
 
     const cookieStore = await cookies();
     const authSession = cookieStore.get('auth_session');
