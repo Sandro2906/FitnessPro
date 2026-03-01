@@ -23,4 +23,16 @@ model User {
   socialLinks  String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  purchases    Purchase[]
+}
+
+model Purchase {
+  id           String   @id @default(cuid())
+  userId       String
+  programId    String
+  purchasedAt  DateTime @default(now())
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, programId]) // User can only buy a specific program once
 }

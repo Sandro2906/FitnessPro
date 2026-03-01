@@ -1,13 +1,29 @@
 "use client";
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function NavbarClient({ isLoggedIn }: { isLoggedIn: boolean }) {
     const [isOpen, setIsOpen] = useState(false);
+    const [purchasedPrograms, setPurchasedPrograms] = useState<string[]>([]);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+
+    useEffect(() => {
+        if (isLoggedIn) {
+            fetch('/api/user/get-purchases')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.programs) setPurchasedPrograms(data.programs);
+                })
+                .catch(err => console.error("Failed to load programs", err));
+        }
+    }, [isLoggedIn]);
 
     const toggleMenu = () => setIsOpen(!isOpen);
-    const closeMenu = () => setIsOpen(false);
+    const closeMenu = () => {
+        setIsOpen(false);
+        setDropdownOpen(false);
+    };
 
     return (
         <nav className="w-full bg-brand-darker/70 backdrop-blur-md border-b border-brand-red/30 py-4 px-6 md:px-12 sticky top-0 z-[100]">
@@ -31,9 +47,39 @@ export default function NavbarClient({ isLoggedIn }: { isLoggedIn: boolean }) {
 
                 <div className="hidden md:flex items-center space-x-4">
                     {isLoggedIn ? (
-                        <Link href="/profile" className="bg-brand-red hover:bg-red-700 text-white px-5 py-2 rounded-md font-bold transition-colors">
-                            Moj Profil
-                        </Link>
+                        <>
+                            {purchasedPrograms.length > 0 && (
+                                <div className="relative">
+                                    <button
+                                        onClick={() => setDropdownOpen(!dropdownOpen)}
+                                        className="text-gray-300 hover:text-white font-medium flex items-center gap-1 transition-colors"
+                                    >
+                                        Moji Programi
+                                        <svg className={`w-4 h-4 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    </button>
+
+                                    {dropdownOpen && (
+                                        <div className="absolute top-full right-0 mt-2 w-56 bg-brand-darker border border-brand-red/30 rounded-lg shadow-xl overflow-hidden flex flex-col z-[110]">
+                                            {purchasedPrograms.map(prog => (
+                                                <Link
+                                                    key={prog}
+                                                    href={`/programi/${prog}`}
+                                                    onClick={closeMenu}
+                                                    className="px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-brand-red/20 transition-colors border-b border-gray-800 last:border-0"
+                                                >
+                                                    {prog === 'weight-loss' && 'Protokol Mršavljenja'}
+                                                    {prog === 'muscle-growth' && 'Plan za Hipertrofiju'}
+                                                    {prog === 'conditioning' && 'Elitna Kondicija'}
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                            <Link href="/profile" className="bg-brand-red hover:bg-red-700 text-white px-5 py-2 rounded-md font-bold transition-colors ml-4">
+                                Moj Profil
+                            </Link>
+                        </>
                     ) : (
                         <>
                             <Link href="/login" className="text-gray-300 hover:text-white transition-colors font-medium">
@@ -70,9 +116,28 @@ export default function NavbarClient({ isLoggedIn }: { isLoggedIn: boolean }) {
 
                     <div className="border-t border-brand-red/20 pt-4 flex flex-col space-y-3">
                         {isLoggedIn ? (
-                            <Link href="/profile" onClick={closeMenu} className="text-center bg-brand-red hover:bg-red-700 text-white px-5 py-3 rounded-md font-bold transition-colors w-full">
-                                Moj Profil
-                            </Link>
+                            <>
+                                {purchasedPrograms.length > 0 && (
+                                    <div className="flex flex-col space-y-2 mb-2 border border-gray-800 rounded-md p-3">
+                                        <span className="text-xs text-gray-500 uppercase tracking-wider font-bold mb-1">Moji Kupljeni Programi</span>
+                                        {purchasedPrograms.map(prog => (
+                                            <Link
+                                                key={prog}
+                                                href={`/programi/${prog}`}
+                                                onClick={closeMenu}
+                                                className="text-gray-300 hover:text-brand-red text-sm transition-colors py-1"
+                                            >
+                                                ➡️ {prog === 'weight-loss' && 'Protokol Mršavljenja'}
+                                                {prog === 'muscle-growth' && 'Plan za Hipertrofiju'}
+                                                {prog === 'conditioning' && 'Elitna Kondicija'}
+                                            </Link>
+                                        ))}
+                                    </div>
+                                )}
+                                <Link href="/profile" onClick={closeMenu} className="text-center bg-brand-red hover:bg-red-700 text-white px-5 py-3 rounded-md font-bold transition-colors w-full">
+                                    Moj Profil
+                                </Link>
+                            </>
                         ) : (
                             <>
                                 <Link href="/login" onClick={closeMenu} className="text-center border border-gray-600 hover:border-gray-400 text-gray-300 hover:text-white transition-colors px-5 py-3 rounded-md font-medium w-full">

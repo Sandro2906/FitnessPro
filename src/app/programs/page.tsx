@@ -1,5 +1,7 @@
 "use client";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import { useState, useEffect } from "react";
+import Link from "next/link";
 
 export default function Programs() {
     const plans = [
@@ -31,6 +33,19 @@ export default function Programs() {
             popular: false
         }
     ];
+
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [loadingAuth, setLoadingAuth] = useState(true);
+
+    useEffect(() => {
+        // Quick check if auth cookie exists by checking if they can access profile
+        fetch('/api/user/profile')
+            .then(res => {
+                if (res.ok) setIsLoggedIn(true);
+                setLoadingAuth(false);
+            })
+            .catch(() => setLoadingAuth(false));
+    }, []);
 
     const initialOptions = {
         clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "test", // Real client ID from .env, fallback to sandbox
@@ -78,58 +93,70 @@ export default function Programs() {
                                 </div>
 
                                 <div className="mt-4 relative z-10 opacity-90 hover:opacity-100 transition-opacity">
-                                    <PayPalButtons
-                                        style={{ layout: "horizontal", height: 45, tagline: false }}
-                                        createOrder={(data, actions) => {
-                                            return actions.order.create({
-                                                intent: "CAPTURE",
-                                                purchase_units: [
-                                                    {
-                                                        description: plan.title,
-                                                        amount: {
-                                                            currency_code: "USD",
-                                                            value: plan.numericPrice
+                                    {loadingAuth ? (
+                                        <div className="h-[45px] w-full bg-gray-800 animate-pulse rounded-md" />
+                                    ) : isLoggedIn ? (
+                                        <PayPalButtons
+                                            style={{ layout: "horizontal", height: 45, tagline: false }}
+                                            createOrder={(data, actions) => {
+                                                return actions.order.create({
+                                                    intent: "CAPTURE",
+                                                    purchase_units: [
+                                                        {
+                                                            description: plan.title,
+                                                            amount: {
+                                                                currency_code: "USD",
+                                                                value: plan.numericPrice
+                                                            }
                                                         }
-                                                    }
-                                                ]
-                                            });
-                                        }}
-                                        onApprove={async (data, actions) => {
-                                            if (!actions.order) return;
-                                            try {
-                                                const order = await actions.order.capture();
-
-                                                alert("Uplata prolazi... Molimo sačekajte.");
-
-                                                const res = await fetch('/api/checkout', {
-                                                    method: 'POST',
-                                                    headers: { 'Content-Type': 'application/json' },
-                                                    body: JSON.stringify({
-                                                        orderID: order.id,
-                                                        programTitle: plan.title,
-                                                        price: plan.price
-                                                    })
+                                                    ]
                                                 });
+                                            }}
+                                            onApprove={async (data, actions) => {
+                                                if (!actions.order) return;
+                                                try {
+                                                    const order = await actions.order.capture();
 
-                                                const result = await res.json();
+                                                    alert("Uplata prolazi... Molimo sačekajte.");
 
-                                                if (res.status === 401) {
-                                                    alert('Samo ulogovani korisnici mogu završiti kupovinu. Molimo logujte se.');
-                                                } else if (result.success) {
-                                                    console.log("Email URL:", result.emailPreviewUrl);
-                                                    alert(`Uspješna kupovina! Program "${plan.title}" je kupljen.\nOtvorite konzolu (F12) da vidite link za Vaš probni Email!`);
-                                                } else {
-                                                    alert(`Greška: ${result.error}`);
+                                                    const res = await fetch('/api/checkout', {
+                                                        method: 'POST',
+                                                        headers: { 'Content-Type': 'application/json' },
+                                                        body: JSON.stringify({
+                                                            orderID: order.id,
+                                                            programTitle: plan.title,
+                                                            price: plan.price
+                                                        })
+                                                    });
+
+                                                    const result = await res.json();
+
+                                                    if (res.status === 401) {
+                                                        alert('Samo ulogovani korisnici mogu završiti kupovinu. Molimo logujte se.');
+                                                    } else if (result.success) {
+                                                        console.log("Email URL:", result.emailPreviewUrl);
+                                                        alert(`Uspješna kupovina! Program "${plan.title}" je kupljen.\nMožete mu sada pristupiti preko padajućeg menija!`);
+                                                        window.location.reload(); // Reload to update navbar
+                                                    } else {
+                                                        alert(`Greška: ${result.error}`);
+                                                    }
+                                                } catch (e) {
+                                                    console.error(e);
+                                                    alert('Došlo je do greške prilikom obrade vaše kupovine.');
                                                 }
-                                            } catch (e) {
-                                                console.error(e);
-                                                alert('Došlo je do greške prilikom obrade vaše kupovine.');
-                                            }
-                                        }}
-                                        onError={() => {
-                                            alert("Došlo je do greške sa PayPal-om. Pokušajte ponovo.");
-                                        }}
-                                    />
+                                            }}
+                                            onError={() => {
+                                                alert("Došlo je do greške sa PayPal-om. Pokušajte ponovo.");
+                                            }}
+                                        />
+                                    ) : (
+                                        <div className="text-center">
+                                            <p className="text-sm text-gray-400 mb-2">Morate biti prijavljeni da biste kupili program.</p>
+                                            <Link href="/login" className="block w-full bg-gray-800 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded transition-colors text-center border border-gray-600">
+                                                Prijavite se
+                                            </Link>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         ))}

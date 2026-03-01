@@ -30,6 +30,29 @@ export async function POST(req: Request) {
         // Production Email Setup (Gmail, Outlook, Hostinger, etc) via .env
         let transporter;
 
+        // Save purchase to database
+        const programIdMap: Record<string, string> = {
+            "Protokol Mršavljenja": "weight-loss",
+            "Plan za Hipertrofiju": "muscle-growth",
+            "Elitna Kondicija": "conditioning"
+        };
+        const programId = programIdMap[programTitle] || "unknown";
+
+        try {
+            await prisma.purchase.create({
+                data: {
+                    userId: user.id,
+                    programId: programId
+                }
+            });
+        } catch (dbError: any) {
+            // Ignore unique constraint errors (user already owns the program limit)
+            if (dbError.code !== 'P2002') {
+                console.error("Failed to save purchase to DB:", dbError);
+                // We proceed with email anyway so user gets what they paid for
+            }
+        }
+
         if (process.env.SMTP_USER && process.env.SMTP_PASS) {
             transporter = nodemailer.createTransport({
                 host: process.env.SMTP_HOST || "smtp.gmail.com",
