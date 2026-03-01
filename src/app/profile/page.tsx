@@ -136,7 +136,7 @@ export default function Profile() {
                             <p className="text-gray-400 mt-1">Uredi svoj profil</p>
 
                             <div className="mt-3 relative">
-                                <label className="cursor-pointer text-sm bg-gray-800 hover:bg-gray-700 text-gray-300 py-1.5 px-4 rounded-md transition-colors border border-gray-700">
+                                <label className="cursor-pointer text-xs md:text-sm bg-gray-800 hover:bg-gray-700 text-gray-300 py-1.5 px-3 rounded-md transition-colors border border-gray-700 whitespace-nowrap inline-block">
                                     Promijeni Sliku
                                     <input
                                         type="file"
