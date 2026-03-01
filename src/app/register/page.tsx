@@ -7,6 +7,7 @@ import Link from 'next/link';
 export default function Register() {
     const router = useRouter();
     const [formData, setFormData] = useState({
+        name: '',
         username: '',
         email: '',
         password: '',
@@ -22,7 +23,7 @@ export default function Register() {
         setError('');
 
         // Client-side validation
-        if (!formData.username || !formData.email || !formData.password || !formData.dateOfBirth) {
+        if (!formData.name || !formData.username || !formData.email || !formData.password || !formData.dateOfBirth) {
             setError('Sva polja osim broja telefona su obavezna.');
             setLoading(false);
             return;
@@ -55,6 +56,11 @@ export default function Register() {
                 {error && <div className="bg-red-500/10 border border-red-500/50 text-red-500 p-3 rounded-lg text-sm mb-6 text-center">{error}</div>}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-1">Ime i Prezime <span className="text-brand-red">*</span></label>
+                        <input type="text" required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-brand-red focus:ring-1 focus:ring-brand-red" placeholder="Unesite vaše pravo ime" />
+                    </div>
+
                     <div>
                         <label className="block text-sm font-medium text-gray-300 mb-1">Korisničko Ime <span className="text-brand-red">*</span></label>
                         <input type="text" required value={formData.username} onChange={(e) => setFormData({ ...formData, username: e.target.value })} className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-brand-red focus:ring-1 focus:ring-brand-red" placeholder="Unesite korisničko ime" />

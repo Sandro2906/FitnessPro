@@ -1,14 +1,17 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { cookies } from 'next/headers';
 
 export async function GET(req: Request) {
     try {
-        const authCookie = req.headers.get('cookie')?.split('auth_session=')[1]?.split(';')[0];
+        const cookieStore = await cookies();
+        const authCookie = cookieStore.get('auth_session');
+
         if (!authCookie) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const session = JSON.parse(decodeURIComponent(authCookie));
+        const session = JSON.parse(authCookie.value);
 
         const user = await prisma.user.findUnique({ where: { id: session.id } });
 
@@ -42,12 +45,14 @@ export async function GET(req: Request) {
 
 export async function PUT(req: Request) {
     try {
-        const authCookie = req.headers.get('cookie')?.split('auth_session=')[1]?.split(';')[0];
+        const cookieStore = await cookies();
+        const authCookie = cookieStore.get('auth_session');
+
         if (!authCookie) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const session = JSON.parse(decodeURIComponent(authCookie));
+        const session = JSON.parse(authCookie.value);
         const updates = await req.json();
 
         // Ignore attempt to update protected fields
@@ -74,12 +79,14 @@ export async function PUT(req: Request) {
 
 export async function DELETE(req: Request) {
     try {
-        const authCookie = req.headers.get('cookie')?.split('auth_session=')[1]?.split(';')[0];
+        const cookieStore = await cookies();
+        const authCookie = cookieStore.get('auth_session');
+
         if (!authCookie) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const session = JSON.parse(decodeURIComponent(authCookie));
+        const session = JSON.parse(authCookie.value);
         const user = await prisma.user.findUnique({ where: { id: session.id } });
 
         if (!user) {

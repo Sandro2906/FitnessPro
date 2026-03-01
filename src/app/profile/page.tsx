@@ -132,7 +132,7 @@ export default function Profile() {
                         </div>
 
                         <div>
-                            <h1 className="text-3xl font-black text-white">{userData?.username}</h1>
+                            <h1 className="text-3xl font-black text-white">{userData?.name || userData?.username}</h1>
                             <p className="text-gray-400 mt-1">Uredi svoj profil</p>
 
                             <div className="mt-3 relative">
@@ -180,6 +180,11 @@ export default function Profile() {
                         </div>
 
                         {/* Editable Fields */}
+                        <div className="md:col-span-2">
+                            <label className="block text-sm font-medium text-gray-300 mb-1">Ime i Prezime</label>
+                            <input type="text" value={userData.name || ''} onChange={(e) => setUserData({ ...userData, name: e.target.value })} className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-brand-red focus:ring-1 focus:ring-brand-red" />
+                        </div>
+
                         <div>
                             <label className="block text-sm font-medium text-gray-500 mb-1">Godine (računa se iz datuma rođenja)</label>
                             <input type="number" readOnly value={userData.age || ''} className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700/50 rounded-lg text-gray-500 cursor-not-allowed" />

@@ -2,15 +2,18 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import { prisma } from '@/lib/db';
+import { cookies } from 'next/headers';
 
 export async function POST(req: Request) {
     try {
-        const authCookie = req.headers.get('cookie')?.split('auth_session=')[1]?.split(';')[0];
+        const cookieStore = await cookies();
+        const authCookie = cookieStore.get('auth_session');
+
         if (!authCookie) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const session = JSON.parse(decodeURIComponent(authCookie));
+        const session = JSON.parse(authCookie.value);
 
         const formData = await req.formData();
         const file = formData.get('avatar') as File;

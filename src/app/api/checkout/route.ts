@@ -20,7 +20,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Unauthorized. Please log in first.' }, { status: 401 });
         }
 
-        const sessionObj = JSON.parse(decodeURIComponent(authSession.value));
+        const sessionObj = JSON.parse(authSession.value);
         const user = await prisma.user.findUnique({ where: { id: sessionObj.id } });
 
         if (!user) {

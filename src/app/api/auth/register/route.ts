@@ -5,6 +5,7 @@ import crypto from 'crypto';
 export async function POST(req: Request) {
     try {
         const body = await req.json();
+        const name = (body.name || '').trim();
         const username = (body.username || '').trim();
         const email = (body.email || '').trim().toLowerCase();
         const password = body.password || '';
@@ -12,8 +13,8 @@ export async function POST(req: Request) {
         const phone = (body.phone || '').trim();
 
         // Validacije
-        if (!username || !email || !password || !dateOfBirth) {
-            return NextResponse.json({ error: 'Username, email, password, and date of birth are required' }, { status: 400 });
+        if (!name || !username || !email || !password || !dateOfBirth) {
+            return NextResponse.json({ error: 'Name, username, email, password, and date of birth are required' }, { status: 400 });
         }
 
         if (await getUserByUsername(username)) {
@@ -28,6 +29,7 @@ export async function POST(req: Request) {
         const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
 
         const newUser = {
+            name,
             email,
             username,
             password: hashedPassword,
