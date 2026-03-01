@@ -12,25 +12,25 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Username and password are required' }, { status: 400 });
         }
 
-        // Use mock data that satisfies TypeScript
+        const user = await getUserByUsername(username);
+        if (!user) {
+            return NextResponse.json({ error: 'Invalid credentials. User not found.' }, { status: 401 });
+        }
+
         const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
 
-        // Create a mock user that avoids the 'never' type error
-        const mockUser = {
-            id: 'mock_id_123',
-            username: username,
-            email: `${username}@example.com`,
-            role: 'user',
-        };
+        if (user.password !== hashedPassword) {
+            return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+        }
 
-        const userWithoutPassword = mockUser;
+        const { password: _, ...userWithoutPassword } = user;
 
         const response = NextResponse.json({ message: 'Login successful', user: userWithoutPassword });
 
         // Set a very simple cookie for auth (in production use JWT or NextAuth)
         response.cookies.set({
             name: 'auth_session',
-            value: JSON.stringify({ id: mockUser.id, username: mockUser.username }),
+            value: JSON.stringify({ id: user.id, username: user.username }),
             httpOnly: true,
             path: '/',
             maxAge: 60 * 60 * 24 * 7, // 1 week

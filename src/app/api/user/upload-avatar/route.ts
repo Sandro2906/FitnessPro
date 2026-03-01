@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { prisma } from '@/lib/db';
 
 export async function POST(req: Request) {
     try {
@@ -45,6 +46,10 @@ export async function POST(req: Request) {
 
         // Update user in DB
         const avatarUrl = `/uploads/avatars/${filename}`;
+        await prisma.user.update({
+            where: { id: session.id },
+            data: { avatarUrl }
+        });
 
         return NextResponse.json({ message: 'Avatar uploaded successfully', avatarUrl });
     } catch (error: any) {

@@ -10,18 +10,17 @@ export async function GET(req: Request) {
 
         const session = JSON.parse(decodeURIComponent(authCookie));
 
-        // Mock User response
-        const user = {
-            id: session.id,
-            username: session.username || 'mock_user',
-            email: 'mock@example.com',
-            age: 25,
-            phone: '',
-            role: 'user',
-            avatarUrl: null
-        };
+        const user = await prisma.user.findUnique({ where: { id: session.id } });
 
-        return NextResponse.json(user);
+        if (!user) {
+            // Delete invalid auth cookie
+            const res = NextResponse.json({ error: 'User not found or session expired' }, { status: 404 });
+            res.cookies.set('auth_session', '', { maxAge: 0, path: '/' });
+            return res;
+        }
+
+        const { password, ...safeUser } = user;
+        return NextResponse.json(safeUser);
     } catch (error) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -47,12 +46,10 @@ export async function PUT(req: Request) {
             updates.password = crypto.createHash('sha256').update(updates.password).digest('hex');
         }
 
-        const updatedUser = {
-            id: session.id,
-            username: session.username || 'mock_user',
-            email: 'mock@example.com',
-            ...updates
-        };
+        const updatedUser = await prisma.user.update({
+            where: { id: session.id },
+            data: updates
+        });
 
         const { password, ...safeUser } = updatedUser;
         return NextResponse.json({ message: 'Profile updated', user: safeUser });
@@ -69,10 +66,7 @@ export async function DELETE(req: Request) {
         }
 
         const session = JSON.parse(decodeURIComponent(authCookie));
-        const user = {
-            id: session.id,
-            avatarUrl: null
-        };
+        const user = await prisma.user.findUnique({ where: { id: session.id } });
 
         if (!user) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 });
@@ -88,8 +82,7 @@ export async function DELETE(req: Request) {
             }
         }
 
-        // Mock DB delete
-        // await prisma.user.delete({ where: { id: session.id } });
+        await prisma.user.delete({ where: { id: session.id } });
 
         // Delete auth cookie
         const res = NextResponse.json({ message: 'Account deleted' });

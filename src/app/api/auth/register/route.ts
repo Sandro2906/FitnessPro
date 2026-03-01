@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getUserByUsername, getUserByEmail, addUser } from '@/lib/db';
+import { getUserByUsername, getUserByEmail, prisma } from '@/lib/db';
 import crypto from 'crypto';
 
 export async function POST(req: Request) {
@@ -28,18 +28,19 @@ export async function POST(req: Request) {
         const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
 
         const newUser = {
-            id: crypto.randomUUID(),
-            username,
             email,
+            username,
             password: hashedPassword,
             age: Number(age),
             phone: phone || '',
         };
 
-        await addUser(newUser);
+        const createdUser = await prisma.user.create({
+            data: newUser
+        });
 
         // Vratimo korisnika bez lozinke
-        const { password: _, ...userWithoutPassword } = newUser;
+        const { password: _, ...userWithoutPassword } = createdUser;
         return NextResponse.json({ message: 'Registration successful', user: userWithoutPassword }, { status: 201 });
     } catch (error: any) {
         return NextResponse.json({ error: 'Failed to process request: ' + error.message }, { status: 500 });
