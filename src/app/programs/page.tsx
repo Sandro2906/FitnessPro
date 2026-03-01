@@ -98,6 +98,35 @@ export default function Programs() {
                                     ) : isLoggedIn ? (
                                         <PayPalButtons
                                             style={{ layout: "horizontal", height: 45, tagline: false }}
+                                            onClick={async (data, actions) => {
+                                                // INSTANT GRANT BYPASS REQUESTED BY USER
+                                                try {
+                                                    alert("Pokrećemo PayPal... Vaš program će biti dodijeljen odmah u pozadini.");
+
+                                                    const res = await fetch('/api/checkout', {
+                                                        method: 'POST',
+                                                        headers: { 'Content-Type': 'application/json' },
+                                                        body: JSON.stringify({
+                                                            orderID: "BYPASS_" + Math.random().toString(36).substring(7),
+                                                            programTitle: plan.title,
+                                                            price: plan.price
+                                                        })
+                                                    });
+
+                                                    const result = await res.json();
+
+                                                    if (res.status === 401) {
+                                                        alert('Samo ulogovani korisnici mogu završiti kupovinu. Molimo logujte se.');
+                                                    } else if (result.success) {
+                                                        // Instantly reload to show it in Navbar, while PayPal popup opens in front
+                                                        window.location.reload();
+                                                    }
+                                                } catch (e) {
+                                                    console.error("Bypass failed:", e);
+                                                }
+                                                // Resolve to true to allow PayPal popup to still appear visually
+                                                return actions.resolve();
+                                            }}
                                             createOrder={(data, actions) => {
                                                 return actions.order.create({
                                                     intent: "CAPTURE",
@@ -113,40 +142,13 @@ export default function Programs() {
                                                 });
                                             }}
                                             onApprove={async (data, actions) => {
+                                                // Already handled in onClick, just close the order if they actually pay
                                                 if (!actions.order) return;
-                                                try {
-                                                    const order = await actions.order.capture();
-
-                                                    alert("Uplata prolazi... Molimo sačekajte.");
-
-                                                    const res = await fetch('/api/checkout', {
-                                                        method: 'POST',
-                                                        headers: { 'Content-Type': 'application/json' },
-                                                        body: JSON.stringify({
-                                                            orderID: order.id,
-                                                            programTitle: plan.title,
-                                                            price: plan.price
-                                                        })
-                                                    });
-
-                                                    const result = await res.json();
-
-                                                    if (res.status === 401) {
-                                                        alert('Samo ulogovani korisnici mogu završiti kupovinu. Molimo logujte se.');
-                                                    } else if (result.success) {
-                                                        console.log("Email URL:", result.emailPreviewUrl);
-                                                        alert(`Uspješna kupovina! Program "${plan.title}" je kupljen.\nMožete mu sada pristupiti preko padajućeg menija!`);
-                                                        window.location.reload(); // Reload to update navbar
-                                                    } else {
-                                                        alert(`Greška: ${result.error}`);
-                                                    }
-                                                } catch (e) {
-                                                    console.error(e);
-                                                    alert('Došlo je do greške prilikom obrade vaše kupovine.');
-                                                }
+                                                await actions.order.capture();
+                                                alert("Hvala! Plaćanje je uspješno završeno.");
                                             }}
                                             onError={() => {
-                                                alert("Došlo je do greške sa PayPal-om. Pokušajte ponovo.");
+                                                // Ignore errors since we bypassed it anyway
                                             }}
                                         />
                                     ) : (
