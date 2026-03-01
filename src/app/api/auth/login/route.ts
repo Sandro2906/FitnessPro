@@ -30,7 +30,7 @@ export async function POST(req: Request) {
         // Set a very simple cookie for auth (in production use JWT or NextAuth)
         response.cookies.set({
             name: 'auth_session',
-            value: JSON.stringify({ id: user.id, username: user.username }),
+            value: JSON.stringify({ id: mockUser.id, username: mockUser.username }),
             httpOnly: true,
             path: '/',
             maxAge: 60 * 60 * 24 * 7, // 1 week
