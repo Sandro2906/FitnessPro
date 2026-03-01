@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 export default function Blog() {
     const sports = [
@@ -56,24 +57,56 @@ export default function Blog() {
 
                 {/* Moj Put Section */}
                 <motion.section
-                    initial={{ opacity: 0, x: -30 }}
-                    whileInView={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-100px" }}
                     transition={{ duration: 0.6 }}
                     className="mb-24"
                 >
-                    <h2 className="text-3xl font-black text-white uppercase mb-8 flex items-center gap-4">
-                        <span className="w-12 h-1 bg-brand-red inline-block rounded-full"></span>
-                        Moj Put i Iskustvo
-                    </h2>
-                    <div className="bg-brand-dark p-8 md:p-12 rounded-3xl border border-gray-800 shadow-2xl relative overflow-hidden group hover:border-brand-red/30 transition-colors">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-brand-red/5 to-transparent blur-2xl rounded-full" />
+                    <div className="grid md:grid-cols-12 gap-12 items-center">
+                        {/* Slika Profila */}
+                        <div className="md:col-span-5 relative">
+                            <div className="absolute inset-0 bg-brand-red/20 blur-3xl rounded-full" />
+                            <div className="relative rounded-3xl overflow-hidden border-2 border-brand-red/30 shadow-[0_0_40px_rgba(229,9,20,0.15)] aspect-[4/5] group">
+                                <Image
+                                    src="/sandro.png"
+                                    alt="Sandro Gatarić"
+                                    fill
+                                    className="object-cover object-top filter brightness-90 group-hover:brightness-100 transition-all duration-500 group-hover:scale-105"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-brand-darker via-brand-darker/40 to-transparent opacity-90" />
+                                <div className="absolute bottom-8 left-8 right-8">
+                                    <h3 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tight drop-shadow-lg">Sandro Gatarić</h3>
+                                    <div className="flex items-center gap-3 mt-2">
+                                        <span className="text-brand-red font-bold text-lg uppercase tracking-widest bg-brand-red/10 px-3 py-1 rounded-full border border-brand-red/30">24 Godine</span>
+                                        <span className="text-gray-300 font-medium text-sm border border-gray-600 px-3 py-1 rounded-full">Osnivač</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                        <p className="text-lg md:text-xl text-gray-300 leading-relaxed relative z-10 font-light">
-                            Strastveno treniram više od <strong className="text-white font-bold">10 godina</strong>, počevši u teretani pa sve do takmičarskih sportova.
-                            Moje iskustvo predstavlja nemilosrdnu potragu za fizičkim savršenstvom, brzinom, agilnošću i sirovom snagom.
-                            <span className="text-brand-red block mt-4 font-bold text-2xl">Ja ne samo da treniram druge; ja živim taj život.</span>
-                        </p>
+                        {/* Tekst Kolona */}
+                        <div className="md:col-span-7 space-y-8">
+                            <h2 className="text-4xl font-black text-white uppercase flex items-center gap-4">
+                                <span className="w-12 h-1 bg-brand-red inline-block rounded-full"></span>
+                                Moj Put i Iskustvo
+                            </h2>
+                            <div className="bg-brand-dark/50 p-8 rounded-3xl border border-gray-800 shadow-xl relative overflow-hidden group hover:border-brand-red/30 transition-colors backdrop-blur-sm">
+                                <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-brand-red/5 to-transparent blur-2xl rounded-full" />
+
+                                <p className="text-lg text-gray-300 leading-relaxed relative z-10 font-light mb-6">
+                                    Zovem se <strong className="text-white font-bold">Sandro Gatarić</strong> i strastveno treniram više od <strong className="text-base text-white font-bold bg-brand-red/20 px-2 py-0.5 rounded border border-brand-red/50">10+ godina</strong>. Počevši u teretani pa sve do različitih takmičarskih sportova, moje iskustvo predstavlja nemilosrdnu potragu za fizičkim savršenstvom, brzinom i snagom.
+                                </p>
+                                <p className="text-lg text-gray-300 leading-relaxed relative z-10 font-light mb-8">
+                                    Međutim, moj razvoj se ne zaustavlja na granicama teretane. Pored sporta, aktivno se bavim <strong className="text-white">Programiranjem</strong> i <strong className="text-white">Fotografijom</strong>. Ovaj spoj analitičkog razmišljanja i kreativnosti mi omogućava da drugačije pristupam rješavanju problema i dizajnu treninga.
+                                </p>
+                                <div className="border-l-4 border-brand-red pl-6 py-2">
+                                    <p className="text-brand-red font-black text-xl md:text-2xl uppercase tracking-wide leading-tight">
+                                        Ja ne samo da treniram druge;<br />ja živim taj život.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </motion.section>
 
